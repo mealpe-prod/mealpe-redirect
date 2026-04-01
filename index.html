@@ -99,8 +99,8 @@
     const WEBAPP_URL = "https://web.mealpe.app";
 
     // Extract slug from current URL path
-    // e.g., order.mealpe.app/dominos-01 → slug = "dominos-01"
-    const slug = window.location.pathname.substring(1).toLowerCase();
+    // e.g., order.mealpe.app/dominos-01 → slug = "dominos-01", fetch from last
+    const slug = window.location.pathname.substring(-1).toLowerCase();
 
     // Validate slug format (basic validation)
     if (!slug || slug === '' || slug === '/') {
