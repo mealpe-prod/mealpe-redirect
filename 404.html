@@ -118,7 +118,7 @@
     }
 
     // Fetch outlet from backend
-    fetch(`${BACKEND_API}/api/redirect/outlet/${slug}`)
+    fetch(`${BACKEND_API}/redirect/outlet/${slug}`)
       .then(response => {
         console.log("Response status:", response.status);
         if (!response.ok) {
