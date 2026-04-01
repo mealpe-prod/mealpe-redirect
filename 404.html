@@ -1,0 +1,158 @@
+<!-- 404.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting to Outlet...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #FF583A;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .message {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .error {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #fee;
+      border: 1px solid #fcc;
+      border-radius: 6px;
+      color: #c33;
+      font-size: 14px;
+    }
+
+    .error-message {
+      margin-bottom: 10px;
+    }
+
+    .home-link {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #FF583A;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+
+    .home-link:hover {
+      background-color: #e64a2a;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner"></div>
+    <p class="message">Redirecting to outlet menu...</p>
+    
+    <div class="error" id="errorContainer">
+      <p class="error-message" id="errorMessage"></p>
+      <a href="https://web.mealpe.app/home" class="home-link">Go to Home</a>
+    </div>
+  </div>
+
+  <script>
+    const BACKEND_API = "https://api.mealpe.app:8055";
+    const WEBAPP_URL = "https://web.mealpe.app";
+
+    // Extract slug from current URL path
+    // Remove /mealpe-redirect/ prefix and any trailing slashes
+    let slug = window.location.pathname
+      .replace(/\/mealpe-redirect\//g, '')
+      .replace(/\//g, '')
+      .toLowerCase()
+      .trim();
+
+    console.log("Extracted slug:", slug);
+
+    // Validate slug format (basic validation)
+    if (!slug || slug === '' || slug === '/') {
+      showError("Invalid outlet slug. Please check the URL.");
+      redirectAfterDelay("https://web.mealpe.app/home", 5000);
+      throw new Error("Empty slug");
+    }
+
+    // Fetch outlet from backend
+    fetch(`${BACKEND_API}/api/redirect/outlet/${slug}`)
+      .then(response => {
+        console.log("Response status:", response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Data received:", data);
+        if (!data.success || !data.data || !data.data.outletId) {
+          throw new Error("Outlet not found");
+        }
+
+        const { outletId } = data.data;
+        console.log("Redirecting to outlet:", outletId);
+        // Redirect to webapp outlet menu page
+        window.location.href = `${WEBAPP_URL}/outlet/${outletId}`;
+      })
+      .catch(error => {
+        console.error("Redirect error:", error);
+        showError(`Outlet not found. Invalid slug: <strong>${slug}</strong>`);
+        redirectAfterDelay(`${WEBAPP_URL}/home`, 5000);
+      });
+
+    function showError(message) {
+      const errorContainer = document.getElementById("errorContainer");
+      const errorMessage = document.getElementById("errorMessage");
+      errorMessage.innerHTML = message;
+      errorContainer.style.display = "block";
+    }
+
+    function redirectAfterDelay(url, delay) {
+      setTimeout(() => {
+        window.location.href = url;
+      }, delay);
+    }
+  </script>
+</body>
+</html>

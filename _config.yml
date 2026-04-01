@@ -1,0 +1,6 @@
+name: MealPe Redirect
+title: MealPe Outlet Redirect
+description: Short URL redirect service for MealPe outlets
+
+# Enable Jekyll processing
+include: [".html"]
